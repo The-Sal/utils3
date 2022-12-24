@@ -132,6 +132,35 @@ def base64DecodeFile(file_path, data):
         f.write(base64.b64decode(data))
 
 
+def assertTypes(types: [type], auto_convert=True):
+    """
+    Guarantee that the types of the arguments of a function are correct
+    :param types: A list of types, the length of the list must match the number of arguments
+    :param auto_convert: If the types don't match, try to convert them
+    :return:
+    """
+    def assertDecorator(function):
+        def assertWrapper(*args, **kwargs):
+            args = list(args)
+            for i, arg in enumerate(args):
+                if not isinstance(arg, types[i]):
+                    if auto_convert:
+                        try:
+                            args[i] = types[i](arg)
+                        except ValueError:
+                            raise TypeError(f'Argument {i} must be of type {types[i]}')
+                    else:
+                        raise TypeError(f'Argument {i} must be of type {types[i]}')
+
+            return function(*args, **kwargs)
+
+        return assertWrapper
+
+    return assertDecorator
+
+
+
+
 # Classes
 class ProxyModule:
     """ProxyModule is a class that allows you to only import the module when it's needed."""

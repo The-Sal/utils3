@@ -28,8 +28,12 @@ class Json:
 
 class JsHandler(Json):
     def __init__(self, file_name):
-        self.latest = self.load(file_name)
+        try:
+            self.latest = self.load(file_name)
+        except FileNotFoundError:
+            self.latest = {}
         self.file = file_name
+        self.save()
 
     @classmethod
     def from_dict(cls, data, file_name):
