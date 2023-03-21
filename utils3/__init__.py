@@ -131,10 +131,10 @@ def base64DecodeFile(file_path, data):
     with open(file_path, 'wb') as f:
         f.write(base64.b64decode(data))
 
-
-def assertTypes(types: [type], auto_convert=True):
+def assertTypes(types: [type], auto_convert=True, class_method=False):
     """
     Guarantee that the types of the arguments of a function are correct
+    :param class_method: If the decorator is being used on a class method, the first argument will be the class instance
     :param types: A list of types, the length of the list must match the number of arguments
     :param auto_convert: If the types don't match, try to convert them
     :return:
@@ -142,6 +142,11 @@ def assertTypes(types: [type], auto_convert=True):
     def assertDecorator(function):
         def assertWrapper(*args, **kwargs):
             args = list(args)
+            ref = None
+            if class_method:
+                ref = args[0]
+                args = args[1:]
+
             for i, arg in enumerate(args):
                 if not isinstance(arg, types[i]):
                     if auto_convert:
@@ -152,13 +157,22 @@ def assertTypes(types: [type], auto_convert=True):
                     else:
                         raise TypeError(f'Argument {i} must be of type {types[i]}')
 
+            if ref is not None:
+                args.insert(0, ref)
+
             return function(*args, **kwargs)
 
         return assertWrapper
 
     return assertDecorator
 
-
+def runAsThread(func):
+    """Run a function as a thread"""
+    def thread_wrapper(*args, **kwargs):
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+        return thread
+    return thread_wrapper
 
 
 # Classes
@@ -375,5 +389,6 @@ class Suppressor:
                 return func(*args, **kwargs)
 
         return wrapper
+
 
 
