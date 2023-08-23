@@ -43,6 +43,8 @@ class Path:
         self._path = _decoder(pth)
         self._validate = validate
 
+
+
     def exists(self):
         """Check if path exists."""
         return path.exists(self.path)
@@ -90,7 +92,7 @@ class Path:
         :param modify: Modify this path object to the new path
         """
         final = join(self.path, *args)
-        new = Path(final)
+        new = Path(final, validate=self._validate)
 
         if modify:
             for attr in dir(new):
