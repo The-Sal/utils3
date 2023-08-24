@@ -76,13 +76,17 @@ class Server:
         while self._alive:
             try:
                 data = client.recv(1024)
-                if self.on_recv is not None:
-                    _execute_async(
-                        self.on_recv,
-                        client,
-                        address,
-                        data
-                    )
+                if data:
+                    if self.on_recv is not None:
+                        _execute_async(
+                            self.on_recv,
+                            client,
+                            address,
+                            data
+                        )
+                else:
+                    client.close()
+                    raise ConnectionResetError
             except (ConnectionResetError, ConnectionAbortedError, OSError):
                 self.on_disconnect(client, address)
                 break
