@@ -169,7 +169,7 @@ def assertTypes(types: [type], auto_convert=True, class_method=False):
 def runAsThread(func):
     """Run a function as a thread"""
     def thread_wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
         thread.start()
         return thread
     return thread_wrapper
@@ -272,8 +272,11 @@ class Coffee:
     @_terminate_on_error
     def decaffeinate(self):
         """Stop the caffeinate process"""
-        assert self._process is not None, "Caffeinate has not been started"
-        assert self._kill is False, "Caffeinate has already been stopped"
+        # Asserting is not really warented only makes an issue when the object is deleted without
+        # calling caffeinate
+
+        # assert self._process is not None, "Caffeinate has not been started"
+        # assert self._kill is False, "Caffeinate has already been stopped"
         self._kill = True
         time.sleep(0.3)
 
