@@ -7,6 +7,7 @@ import base64
 import random
 import shutil
 import inspect
+import tempfile
 import traceback
 import threading
 import subprocess
@@ -393,5 +394,25 @@ class Suppressor:
 
         return wrapper
 
+
+class BinaryDecompression:
+    def __init__(self, binary: str):
+        self._tempFile = tempfile.NamedTemporaryFile(delete=True)
+        base64DecodeFile(file_path=self._tempFile.name, data=binary)
+        self._mod()
+
+    def _mod(self):
+        subprocess.check_call([
+            'chmod',
+            '+x',
+            self._tempFile.name
+        ])
+
+
+
+    @property
+    def binary(self):
+        assert self._tempFile.name is not None, 'Binary not found.'
+        return self._tempFile.name
 
 
