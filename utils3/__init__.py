@@ -11,7 +11,6 @@ import tempfile
 import traceback
 import threading
 import subprocess
-import playerFramework
 from utils3.system import paths
 
 # Store reference to any subprocesses, so they can all be terminated when an error is thrown
@@ -36,22 +35,7 @@ def _terminate_on_error(function):
 # Functions
 @_terminate_on_error
 def playAudio(file, type_=0):
-    """
-    Play an audio file
-    :param file: The path to the audio file
-    :param type_: 0 = use PyObjC, 1 = use playerFramework
-    :return:
-    """
-    # check if pyobjc is available
-    try:
-        if type_ == 1:
-            raise ImportError
-        from AppKit import NSSound
-        s = NSSound.alloc().initWithContentsOfFile_byReference_(file, True)
-        s.play()
-        time.sleep(s.duration())
-    except ImportError:
-        playerFramework.player(warning=False).play_track(file, True)
+    raise NotImplementedError("This function is not going to be implemented in this version of utils3")
 
 def whoCalledMe() -> (str, str):
     """The file the called this function and the name of the function"""
