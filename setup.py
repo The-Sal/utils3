@@ -8,6 +8,5 @@ setup(
     author_email="lhu9mbim@duck.com",
     requires=[
         "requests",
-        "playerFramework",
     ]
 )

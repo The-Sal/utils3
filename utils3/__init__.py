@@ -7,10 +7,10 @@ import base64
 import random
 import shutil
 import inspect
+import tempfile
 import traceback
 import threading
 import subprocess
-import playerFramework
 from utils3.system import paths
 
 # Store reference to any subprocesses, so they can all be terminated when an error is thrown
@@ -35,22 +35,7 @@ def _terminate_on_error(function):
 # Functions
 @_terminate_on_error
 def playAudio(file, type_=0):
-    """
-    Play an audio file
-    :param file: The path to the audio file
-    :param type_: 0 = use PyObjC, 1 = use playerFramework
-    :return:
-    """
-    # check if pyobjc is available
-    try:
-        if type_ == 1:
-            raise ImportError
-        from AppKit import NSSound
-        s = NSSound.alloc().initWithContentsOfFile_byReference_(file, True)
-        s.play()
-        time.sleep(s.duration())
-    except ImportError:
-        playerFramework.player(warning=False).play_track(file, True)
+    raise NotImplementedError("This function is not going to be implemented in this version of utils3")
 
 def whoCalledMe() -> (str, str):
     """The file the called this function and the name of the function"""
@@ -169,7 +154,7 @@ def assertTypes(types: [type], auto_convert=True, class_method=False):
 def runAsThread(func):
     """Run a function as a thread"""
     def thread_wrapper(*args, **kwargs):
-        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
         thread.start()
         return thread
     return thread_wrapper
@@ -272,8 +257,11 @@ class Coffee:
     @_terminate_on_error
     def decaffeinate(self):
         """Stop the caffeinate process"""
-        assert self._process is not None, "Caffeinate has not been started"
-        assert self._kill is False, "Caffeinate has already been stopped"
+        # Asserting is not really warented only makes an issue when the object is deleted without
+        # calling caffeinate
+
+        # assert self._process is not None, "Caffeinate has not been started"
+        # assert self._kill is False, "Caffeinate has already been stopped"
         self._kill = True
         time.sleep(0.3)
 
@@ -390,5 +378,25 @@ class Suppressor:
 
         return wrapper
 
+
+class BinaryDecompression:
+    def __init__(self, binary: str):
+        self._tempFile = tempfile.NamedTemporaryFile(delete=True)
+        base64DecodeFile(file_path=self._tempFile.name, data=binary)
+        self._mod()
+
+    def _mod(self):
+        subprocess.check_call([
+            'chmod',
+            '+x',
+            self._tempFile.name
+        ])
+
+
+
+    @property
+    def binary(self):
+        assert self._tempFile.name is not None, 'Binary not found.'
+        return self._tempFile.name
 
 
