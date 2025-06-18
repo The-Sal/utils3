@@ -119,6 +119,7 @@ class UDSServer(Server):
         """
         super().__init__(on_disconnect, 'localhost', random.randint(6000, 9999), on_connect, on_recv)
         del self.socket
-        os.unlink(path)
+        if os.path.exists(path):
+            os.unlink(path)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.bind(path)
