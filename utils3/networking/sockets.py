@@ -1,3 +1,5 @@
+import os
+import random
 import socket
 import threading
 
@@ -101,3 +103,22 @@ class Server:
             assert not t.is_alive(), "Thread {} is still alive".format(t)
 
 
+
+
+class UDSServer(Server):
+    """A quick way to create a socket server using Unix Domain Sockets"""
+
+    def __init__(self, on_disconnect, path, on_connect=None, on_recv=None):
+        """
+        :param on_disconnect: A function to call when a client disconnects, will receive the client and address as
+            parameters
+        :param path: The path to bind to
+        :param on_connect: A function to call when a client connects, will receive the client and address as parameters
+        :param on_recv: A function to call when a client sends data, will receive the client, address and data as
+            parameters
+        """
+        super().__init__(on_disconnect, 'localhost', random.randint(6000, 9999), on_connect, on_recv)
+        del self.socket
+        os.unlink(path)
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket.bind(path)
