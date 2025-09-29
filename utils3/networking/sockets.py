@@ -52,6 +52,7 @@ class Server:
 
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host, self.port))
         self._alive = False
 
@@ -118,7 +119,7 @@ class UDSServer(Server):
             parameters
         """
         super().__init__(on_disconnect, 'localhost', random.randint(6000, 9999), on_connect, on_recv)
-        del self.socket
+        self.socket.close()
         if os.path.exists(path):
             os.unlink(path)
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
